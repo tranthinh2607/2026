@@ -677,7 +677,7 @@
 
         .happy-new-year-msg {
             font-family: 'Dancing Script', cursive;
-            font-size: 5rem;
+            font-size: 3.5rem;
             font-weight: 700;
             text-align: center;
             display: none;
@@ -833,7 +833,7 @@
         /* Win Message Overlay */
         #win-msg {
             position: fixed;
-            top: 60%;
+            top: 62%;
             /* Moved down from 50% */
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
@@ -906,7 +906,7 @@
     <div id="game-ui">
         <div class="game-header">
             <h2 class="game-title">Hứng Lộc Đầu Năm</h2>
-            <p class="game-instruction">Chạm vào vật phẩm để nhận lộc! 🧧💰</p>
+            <p class="game-instruction">Chạm vật phẩm để nhận lộc! 🧧💰</p>
         </div>
         <div class="game-controls">
             <div class="score-board">Lộc: <span id="score-val">0</span>/68</div>
@@ -1346,7 +1346,18 @@
             height = canvas.height = window.innerHeight;
         }
         window.addEventListener('resize', resize);
+        window.addEventListener('resize', resize);
         resize();
+
+        // --- PRE-RENDER FLOWER EMOJI ---
+        const flowerCanvas = document.createElement('canvas');
+        flowerCanvas.width = 50;
+        flowerCanvas.height = 50;
+        const fCtx = flowerCanvas.getContext('2d');
+        fCtx.font = "40px Arial";
+        fCtx.textAlign = "center";
+        fCtx.textBaseline = "middle";
+        fCtx.fillText("🌸", 25, 25);
 
         class Flower {
             constructor() {
@@ -1356,18 +1367,17 @@
             reset(initial = false) {
                 this.x = Math.random() * width;
                 this.y = initial ? Math.random() * height : -20;
-                this.size = Math.random() * 8 + 5;
-                this.speedY = Math.random() * 1 + 0.5;
-                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 10 + 10; // Slightly larger for emoji
+                this.speedY = Math.random() * 1.5 + 1.5; //lightly slower (2.5 - 5px/frame)
+                this.speedX = (Math.random() - 0.5) * 1; // Slightly more X variation
                 this.rotation = Math.random() * 360;
-                this.rotationSpeed = (Math.random() - 0.5) * 2;
-                this.type = Math.random() > 0.5 ? 'peach' : 'apricot';
-                this.opacity = Math.random() * 0.4 + 0.4;
+                this.rotationSpeed = (Math.random() - 0.5) * 5; // Faster rotation
+                this.opacity = Math.random() * 0.4 + 0.6; // Higher opacity
             }
 
             update() {
                 this.y += this.speedY;
-                this.x += this.speedX + Math.sin(this.y / 50) * 0.5;
+                this.x += this.speedX + Math.sin(this.y / 100) * 1.5; // Smoother, wider sway
                 this.rotation += this.rotationSpeed;
 
                 if (this.y > height + 20) {
@@ -1380,18 +1390,9 @@
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.rotation * Math.PI / 180);
 
-                if (this.type === 'peach') {
-                    ctx.fillStyle = `rgba(255, 183, 197, ${this.opacity})`;
-                } else {
-                    ctx.fillStyle = `rgba(255, 255, 0, ${this.opacity})`;
-                }
-
-                ctx.beginPath();
-                for (let i = 0; i < 5; i++) {
-                    ctx.ellipse(0, this.size, this.size / 2.5, this.size, 0, 0, Math.PI * 2);
-                    ctx.rotate((Math.PI * 2) / 5);
-                }
-                ctx.fill();
+                // Draw Image instead of Text (Faster)
+                ctx.globalAlpha = this.opacity;
+                ctx.drawImage(flowerCanvas, -this.size, -this.size, this.size * 2, this.size * 2);
 
                 ctx.restore();
             }
